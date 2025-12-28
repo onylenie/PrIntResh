@@ -49,7 +49,7 @@ namespace WindowsFormsApp1
         public int OwnerId { get; set; }
     }
 
-    public class TaskItem  // ← ВАЖНО: TaskItem вместо Task
+    public class TaskItem
     {
         [JsonProperty("id")]
         public int Id { get; set; }
