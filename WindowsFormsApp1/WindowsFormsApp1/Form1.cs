@@ -31,7 +31,6 @@ namespace WindowsFormsApp1
 
             UpdatePaginationLabels();
 
-            // Добавляем двойной клик
             listProjects.MouseDoubleClick += new MouseEventHandler(listProjects_MouseDoubleClick);
             listTasks.MouseDoubleClick += new MouseEventHandler(listTasks_MouseDoubleClick);
             listTasks.SelectedIndexChanged += new EventHandler(listTasks_SelectedIndexChanged);
@@ -48,7 +47,6 @@ namespace WindowsFormsApp1
             lblTaskPage.Text = $"Страница: {_currentTaskPage + 1}";
         }
 
-        // ============ ДВОЙНОЙ КЛИК ПО ПРОЕКТУ ============
         private void listProjects_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             int index = listProjects.IndexFromPoint(e.Location);
@@ -86,7 +84,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ============ ДВОЙНОЙ КЛИК ПО ЗАДАЧЕ ============
         private void listTasks_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             int index = listTasks.IndexFromPoint(e.Location);
@@ -104,13 +101,11 @@ namespace WindowsFormsApp1
         {
             try
             {
-                // Просто получаем задачу через существующий ApiClient
                 var tasks = await _apiClient.GetTasks(_selectedProjectId, 100, 0);
                 var task = tasks.FirstOrDefault(t => t.Id == taskId);
 
                 if (task != null)
                 {
-                    // Получаем комментарии отдельно
                     var comments = await _apiClient.GetComments(taskId);
 
                     var details = new StringBuilder();
@@ -143,13 +138,11 @@ namespace WindowsFormsApp1
 
         private string GetToken()
         {
-            // Простой способ получить токен - можно улучшить
             return _apiClient.GetType().GetField("_token",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?
                 .GetValue(_apiClient) as string ?? "";
         }
 
-        // ============ ВЫБОР ЗАДАЧИ ДЛЯ КОММЕНТАРИЕВ ============
         private async void listTasks_SelectedIndexChanged(object sender, EventArgs e)
         {
             DebugLog($"Событие SelectedIndexChanged для listTasks");
@@ -169,7 +162,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ============ РЕГИСТРАЦИЯ ============
         private async void btnRegister_Click(object sender, EventArgs e)
         {
             DebugLog($"Нажата кнопка Регистрация. Email: {txtRegisterEmail.Text}");
@@ -206,7 +198,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ============ ЛОГИН ============
         private async void btnLogin_Click(object sender, EventArgs e)
         {
             DebugLog($"Нажата кнопка Войти. Email: {txtEmail.Text}");
@@ -239,7 +230,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ============ ПРОЕКТЫ ============
         private async Task LoadProjects()
         {
             DebugLog("Загрузка проектов...");
@@ -282,14 +272,13 @@ namespace WindowsFormsApp1
             {
                 DebugLog("Отправка запроса на создание проекта...");
 
-                // Идемпотентный ключ для проекта
                 string idempotencyKey = $"project_{txtProjectName.Text.GetHashCode():X}";
                 DebugLog($"Идемпотентный ключ: {idempotencyKey}");
 
                 var project = await _apiClient.CreateProject(
                     txtProjectName.Text,
                     txtProjectDescription.Text,
-                    idempotencyKey); // ← Теперь с идемпотентностью
+                    idempotencyKey);
 
                 DebugLog($"Результат создания проекта: {(project != null ? "Успех" : "Неудача")}");
 
@@ -356,7 +345,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ============ ВЫБОР ПРОЕКТА ============
         private async void listProjects_SelectedIndexChanged(object sender, EventArgs e)
         {
             DebugLog($"Выбран проект в списке: {listProjects.SelectedItem}");
@@ -374,7 +362,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ============ ЗАДАЧИ ============
         private async Task LoadTasks(int projectId)
         {
             DebugLog($"Загрузка задач для проекта {projectId}...");
@@ -426,7 +413,6 @@ namespace WindowsFormsApp1
             {
                 DebugLog("Отправка запроса на создание задачи...");
 
-                // Создаем идемпотентный ключ на основе данных задачи
                 string idempotencyKey = $"task_{_selectedProjectId}_{txtTaskTitle.Text.GetHashCode():X}";
                 DebugLog($"Идемпотентный ключ: {idempotencyKey}");
 
@@ -434,7 +420,7 @@ namespace WindowsFormsApp1
                     _selectedProjectId,
                     txtTaskTitle.Text,
                     txtTaskDescription.Text,
-                    idempotencyKey); // ← Теперь один и тот же ключ для одинаковых задач
+                    idempotencyKey);
 
                 DebugLog($"Результат создания задачи: {(task != null ? "Успех" : "Неудача")}");
 
@@ -501,7 +487,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ============ КОММЕНТАРИИ ============
         private async Task LoadComments(int taskId)
         {
             DebugLog($"Загрузка комментариев для задачи {taskId}...");
@@ -567,7 +552,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ============ ПАГИНАЦИЯ ============
         private async void btnPrevProjects_Click(object sender, EventArgs e)
         {
             if (_currentProjectPage > 0)
@@ -621,7 +605,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        // ============ ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ============
         private int GetSelectedProjectId()
         {
             if (listProjects.SelectedItem != null)
@@ -642,10 +625,7 @@ namespace WindowsFormsApp1
                     return id;
             }
             return -1;
-        }
-
-        // ============ ТЕСТ ИДЕМПОТЕНТНОСТИ ============
-        
+        }        
 
         private void Form1_Load(object sender, EventArgs e)
         {
